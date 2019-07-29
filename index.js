@@ -28,9 +28,12 @@ game.start();
 const keyboard = new Keyboard();
 
 keyboard.subscribe((data) => {
-    console.log(' sub 111111');
-    console.log(data);
     game.actionPlayer('adrian', data);
+});
+
+game.output.subscribe((data) => {
+    console.log('data player');
+    console.log(data);
 });
 
 // const unsub = keyboard.subscribe((data) => {
