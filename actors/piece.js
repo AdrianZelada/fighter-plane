@@ -1,5 +1,5 @@
 export class Piece{
-    constructor(x, y, velocity, width, height, direction, color) {
+    constructor(board, x, y, velocity, width, height, direction, color) {
         this.x = x;
         this.y = y;
         this.velocity = velocity;
@@ -7,6 +7,7 @@ export class Piece{
         this.height = height;
         this.direction = direction;
         this.color = color;
+        this.board = board;
     }
 
     isEndTravel() {
@@ -27,5 +28,9 @@ export class Piece{
             crash = false;
         }
         return crash;
+    }
+
+    render() {
+        this.board.draw('piece', this);
     }
 }

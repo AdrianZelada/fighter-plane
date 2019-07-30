@@ -1,12 +1,13 @@
 import {Hability} from './hability.js';
 import {Piece} from "./piece.js";
 export class Player extends Piece{
-    constructor(fighterPlane) {
-        super(0, 0, 1, 20, 20, 'none', 'black');
+    constructor(board, fighterPlane) {
+        super(board, 0, 0, 1, 20, 20, 'none', 'black');
         this.fire = false;
         this.score = 0;
         this.fighterPlane = fighterPlane;
         this.name = fighterPlane.name;
+        // this.render();
     }
 
     addHability(power, health) {
@@ -50,5 +51,10 @@ export class Player extends Piece{
                 this.y += this.velocity;
                 break;
         }
+    }
+
+    draw() {
+        this.move();
+        this.render();
     }
 }

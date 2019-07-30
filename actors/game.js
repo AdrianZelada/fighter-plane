@@ -4,23 +4,23 @@ import {Piece} from "./piece.js";
 import {DefineMove, Enemy} from "./enemy.js";
 import {ObservableData} from "./Observable.js";
 import {Gift} from "./gift.js";
+import {Render} from "./render.js";
+
 export class Game{
     constructor() {
         this.players = {};
         this.enemies = [];
         this.blocks = [];
-        this.canvas = document.createElement("canvas");
-        this.canvas.width = 480;
-        this.canvas.height = 270;
-        this.context = this.canvas.getContext("2d");
+        this.width = 480;
+        this.height = 270;
         this.timer = 0;
-        this.intervalEnemy = 30;
+        this.intervalEnemy = 10;
         this.output = new ObservableData();
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.board = new Render(this.width, this.height);
     }
 
     start() {
-        setInterval((i) => {
+        setInterval(() => {
             this.timer++;
             if (this.timer % this.intervalEnemy ===0) {
                 this.addBlock();
@@ -30,13 +30,13 @@ export class Game{
     }
 
     clear() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.board.clear();
     }
 
     addPlayer(name, habilities) {
         if (!this.players[name]) {
             const fighterPlane = new FighterPlane(name, habilities.damage, habilities.health);
-            this.players[name] = new Player(fighterPlane);
+            this.players[name] = new Player(this.board, fighterPlane);
         }
     }
 
@@ -68,23 +68,15 @@ export class Game{
         this.players[name].action(action);
     }
 
-    addEnemy(){
-        // const y = this.randomIntFromInterval(0, this.canvas.height)
-        // let enemy = new Enemy(this.canvas.width, y, 1, 10, 10, 1, 'red');
-        // DefineMove(enemy);
-        // // console.log(enemy)
-        // this.enemies.push(enemy);
-    }
-
     addBlock(){
-        const y = this.randomIntFromInterval(0, this.canvas.height);
+        const y = this.randomIntFromInterval(0, this.height);
         const n = this.randomIntFromInterval(0,9);
         const v = this.getLevel();
         let block;
         if( n > 6){
-            block = new Gift(this.canvas.width, y, v, 10, 10, 'green', 1);
+            block = new Gift(this.board, this.width, y, v, 10, 10, 'green', 2);
         } else {
-            block = new Enemy(this.canvas.width, y, v, 10, 10, 'red', 1);
+            block = new Enemy(this.board, this.width, y, v, 10, 10, 'red', 2);
         }
         DefineMove(block);
         this.blocks.push(block);
@@ -96,11 +88,7 @@ export class Game{
         const players = Object.keys(this.players);
         players.forEach(( key ) => {
             const player = this.players[key];
-            player.move();
-            this.context.fillStyle = player.color;
-            this.context.fillRect(player.x, player.y, player.width, player.height);
-            this.context.fill();
-            this.context.closePath();
+            player.draw();
         });
 
         const user = this.players[players[0]];
@@ -123,11 +111,7 @@ export class Game{
 
         this.blocks.forEach((block) => {
             block.move();
-            this.context.beginPath();
-            this.context.fillStyle = block.color;
-            this.context.fillRect(block.x, block.y, block.width, block.height);
-            this.context.fill();
-            this.context.closePath();
+            block.render();
         });
     }
 
@@ -145,7 +129,7 @@ export class Game{
         if (score < 10) {
             return 1;
         } else {
-            return Math.trunc(score/10);
+            return 1 + Math.trunc(score/10);
         }
     }
 

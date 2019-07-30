@@ -23,7 +23,7 @@ export class Hability{
     }
 
     getLive() {
-        return this.fighterPlane.getLive() + this.health;
+        return this.fighterPlane ? this.fighterPlane.getLive() + this.health : 0;
     }
 
 }
