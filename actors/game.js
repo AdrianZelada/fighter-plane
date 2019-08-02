@@ -1,15 +1,14 @@
 import { FighterPlane} from './fighter-plane.js';
 import { Player} from './player.js';
-import {Piece} from "./piece.js";
-import {DefineMove, Enemy} from "./enemy.js";
+import { Enemy} from "./enemy.js";
 import {ObservableData} from "./Observable.js";
 import {Gift} from "./gift.js";
 import {Render} from "./render.js";
+import {trajectory} from "./trajectory.js";
 
 export class Game{
     constructor() {
         this.players = {};
-        this.enemies = [];
         this.blocks = [];
         this.width = 480;
         this.height = 270;
@@ -17,10 +16,14 @@ export class Game{
         this.intervalEnemy = 10;
         this.output = new ObservableData();
         this.board = new Render(this.width, this.height);
+
+        this.level = 1;
+
+        this.interval = null;
     }
 
     start() {
-        setInterval(() => {
+        this.interval = setInterval(() => {
             this.timer++;
             if (this.timer % this.intervalEnemy ===0) {
                 this.addBlock();
@@ -46,7 +49,8 @@ export class Game{
             player: name,
             health: this.players[name].getLive(),
             score: this.players[name].score
-        })
+        });
+        this.setLevel();
     }
 
     habilityToPlayer(name, habilities){
@@ -56,7 +60,8 @@ export class Game{
             player: name,
             health: this.players[name].getLive(),
             score: this.players[name].score
-        })
+        });
+        this.setLevel();
     }
 
     isLivePlayer(name) {
@@ -71,14 +76,15 @@ export class Game{
     addBlock(){
         const y = this.randomIntFromInterval(0, this.height);
         const n = this.randomIntFromInterval(0,9);
-        const v = this.getLevel();
+        const v = this.level;
+        const l = this.randomIntFromInterval(1,2);
         let block;
         if( n > 6){
-            block = new Gift(this.board, this.width, y, v, 10, 10, 'green', 2);
+            block = new Gift(this.board, this.width, y, v, 10, 10, 'green', l);
         } else {
-            block = new Enemy(this.board, this.width, y, v, 10, 10, 'red', 2);
+            block = new Enemy(this.board, this.width, y, v, 10, 10, 'red', l);
         }
-        DefineMove(block);
+        trajectory(block);
         this.blocks.push(block);
 
     }
@@ -106,30 +112,39 @@ export class Game{
                     }
                 }
             }
-           return !(block.isEndTravel() || withImpact);
+            const enabledBlock = !(block.isEndTravel() || withImpact);
+            if ( enabledBlock ){
+                block.move();
+                block.render();
+            }
+           return enabledBlock;
         });
 
-        this.blocks.forEach((block) => {
-            block.move();
-            block.render();
-        });
     }
 
     randomIntFromInterval(min,max){
         return Math.floor(Math.random()*(max-min+1)+min);
     }
 
-    getLevel() {
+    setLevel() {
         const players = Object.keys(this.players);
         let score= 0;
         players.forEach(( key ) => {
             const player = this.players[key];
             score += player.score;
+            if (player.score > 10) {
+                player.velocity = 1 + Math.trunc(player.score/10);
+            }
+            if (player.getLive() == 0) {
+                if(this.interval){
+                    clearInterval(this.interval)
+                }
+            }
         });
         if (score < 10) {
-            return 1;
+            this.level = 1;
         } else {
-            return 1 + Math.trunc(score/10);
+            this.level = 1 + Math.trunc(score/10);
         }
     }
 
