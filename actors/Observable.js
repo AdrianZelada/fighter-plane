@@ -24,6 +24,4 @@ export class ObservableData {
         });
     }
 }
-// let direction = '';
-// export default
 

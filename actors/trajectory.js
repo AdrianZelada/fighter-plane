@@ -22,7 +22,7 @@ export function trajectory(block) {
                     if(!this.calculate) {
                         this.buildSides();
                     }
-                    let n = Math.trunc(Math[this.mathFn]((this.x * Math.PI)/360)*100);
+                    let n = Math.trunc(Math[this.mathFn]((this.x * (2 * Math.PI))/360)*100);
                     this.y = this.limit + n;
                 }
             });
